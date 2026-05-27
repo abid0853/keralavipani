@@ -11,17 +11,22 @@ export default function Navbar() {
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          {/* Logo Section */}
+                    {/* Logo Section */}
           <div className="flex items-center">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">K</span>
-              </div>
+            <Link to="/" className="flex items-center gap-2.5">
+              {/* Your New Logo Image */}
+              <img 
+                src="/logo.png" 
+                alt="KeralaVipani Logo" 
+                className="w-10 h-10 object-contain rounded-full shadow-sm bg-white border border-gray-100 p-0.5"
+              />
+              {/* App Name Text */}
               <span className="text-xl font-extrabold text-gray-900 tracking-tight">
                 Kerala<span className="text-primary">Vipani</span>
               </span>
             </Link>
           </div>
+
 
           {/* Navigation Links & Profile */}
           <div className="flex items-center gap-4">
