@@ -15,7 +15,7 @@ export default function Dashboard() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   const districts = ['All Kerala', 'Thiruvananthapuram', 'Kollam', 'Pathanamthitta', 'Alappuzha', 'Kottayam', 'Idukki', 'Ernakulam', 'Thrissur', 'Palakkad', 'Malappuram', 'Kozhikode', 'Wayanad', 'Kannur', 'Kasaragod'];
-const categories = ['All Types', 'Vegetables', 'Meat', 'Fish', 'Fuel', 'Groceries', 'Commodities', 'Precious Metals'];
+const categories = ['All Types', 'Vegetables/Fruit', 'Meat', 'Fish', 'Fuel', 'Groceries', 'Commodities', 'Precious Metals'];
   // 1. Fetch Real-Time Data
   useEffect(() => {
     const q = query(collection(db, 'products'), orderBy('name', 'asc'));

@@ -18,13 +18,13 @@ export default function Contribute() {
   // Pre-fill the form if we are editing
   const [formData, setFormData] = useState({
     productName: editProduct ? editProduct.name : '',
-    category: editProduct ? editProduct.category : 'Vegetables',
+    category: editProduct ? editProduct.category : 'Vegetables/Fruit',
     price: '', // Always leave price blank so they type the new one
     unit: editProduct ? editProduct.unit : 'kg',
     district: editProduct ? editProduct.district : 'Thiruvananthapuram'
   });
 
-  const categories = ['Vegetables', 'Meat', 'Fish', 'Fuel', 'Groceries', 'Commodities', 'Precious Metals'];
+  const categories = ['Vegetables/Fruit', 'Meat', 'Fish', 'Fuel', 'Groceries', 'Commodities', 'Precious Metals'];
   const units = ['kg', 'liter', 'piece', 'bunch', '10g'];
   const districts = ['Thiruvananthapuram', 'Kollam', 'Pathanamthitta', 'Alappuzha', 'Kottayam', 'Idukki', 'Ernakulam', 'Thrissur', 'Palakkad', 'Malappuram', 'Kozhikode', 'Wayanad', 'Kannur', 'Kasaragod'];
 
