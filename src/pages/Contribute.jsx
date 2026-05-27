@@ -35,10 +35,12 @@ export default function Contribute() {
     setLoading(true);
     try {
       await addDoc(collection(db, 'submissions'), {
-        // If it's an edit, attach the exact Database ID so the admin knows what to overwrite
         targetProductId: editProduct ? editProduct.id : null,
         productName: formData.productName,
-        category: formData.category,
+        
+        // THE FIX: If they select Vegetable/Fruits, safely save it as Vegetables
+        category: formData.category === 'Vegetable/Fruits' ? 'Vegetables' : formData.category,
+        
         suggestedPrice: Number(formData.price),
         unit: formData.unit,
         district: formData.district,

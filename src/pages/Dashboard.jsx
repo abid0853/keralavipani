@@ -27,12 +27,18 @@ const categories = ['All Types', 'Vegetables/Fruit', 'Meat', 'Fish', 'Fuel', 'Gr
     return () => unsubscribe();
   }, []);
 
-  // 2. Smart Filtering Engine (Runs instantly when user types or clicks)
+  // 2. Smart Filtering Engine
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesDistrict = selectedDistrict === 'All Kerala' || product.district === selectedDistrict;
-      const matchesCategory = selectedCategory === 'All Types' || product.category === selectedCategory;
+      
+      // THE FIX: Check for exact match OR the new Vegetable/Fruits alias
+      const matchesCategory = 
+        selectedCategory === 'All Types' || 
+        product.category === selectedCategory ||
+        (selectedCategory === 'Vegetable/Fruits' && product.category === 'Vegetables');
+
       return matchesSearch && matchesDistrict && matchesCategory;
     });
   }, [products, searchQuery, selectedDistrict, selectedCategory]);
