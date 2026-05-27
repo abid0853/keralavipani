@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react'; // <-- NEW IMPORT
 import Navbar from './components/Navbar';
-import Footer from './components/Footer'; // <-- IMPORT THE FOOTER
+import Footer from './components/Footer';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Contribute from './pages/Contribute';
@@ -14,7 +15,6 @@ function App() {
         
         <Navbar />
 
-        {/* Main Content Area (flex-grow pushes the footer to the bottom) */}
         <main className="flex-grow container mx-auto p-4 md:p-6 w-full">
           <Routes>
             <Route path="/" element={<Dashboard />} />
@@ -25,8 +25,10 @@ function App() {
           </Routes>
         </main>
 
-        {/* NEW: The Footer Component */}
         <Footer />
+        
+        {/* NEW: The Vercel Analytics Component */}
+        <Analytics />
         
       </div>
     </Router>
