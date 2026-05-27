@@ -33,11 +33,12 @@ const categories = ['All Types', 'Vegetables/Fruit', 'Meat', 'Fish', 'Fuel', 'Gr
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesDistrict = selectedDistrict === 'All Kerala' || product.district === selectedDistrict;
       
-      // THE FIX: Check for exact match OR the new Vegetable/Fruits alias
+      // THE FIX: Exactly matches the dropdown string "Vegetables/Fruit"
+      // and catches both "Vegetables" and "Vegetables/Fruit" from the database.
       const matchesCategory = 
         selectedCategory === 'All Types' || 
         product.category === selectedCategory ||
-        (selectedCategory === 'Vegetable/Fruits' && product.category === 'Vegetables');
+        (selectedCategory === 'Vegetables/Fruit' && (product.category === 'Vegetables' || product.category === 'Vegetables/Fruit'));
 
       return matchesSearch && matchesDistrict && matchesCategory;
     });

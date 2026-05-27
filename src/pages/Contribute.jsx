@@ -38,8 +38,8 @@ export default function Contribute() {
         targetProductId: editProduct ? editProduct.id : null,
         productName: formData.productName,
         
-        // THE FIX: If they select Vegetable/Fruits, safely save it as Vegetables
-        category: formData.category === 'Vegetable/Fruits' ? 'Vegetables' : formData.category,
+        // THE FIX: Corrected spelling to match "Vegetables/Fruit"
+        category: formData.category === 'Vegetables/Fruit' ? 'Vegetables' : formData.category,
         
         suggestedPrice: Number(formData.price),
         unit: formData.unit,
