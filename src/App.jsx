@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Analytics } from '@vercel/analytics/react'; // <-- NEW IMPORT
+import { Analytics } from '@vercel/analytics/react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import InstallPrompt from './components/InstallPrompt'; // <-- 1. IMPORT IT HERE
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Contribute from './pages/Contribute';
@@ -11,7 +12,7 @@ import MySubmissions from './pages/MySubmissions';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+      <div className="min-h-screen bg-gray-50 flex flex-col font-sans relative">
         
         <Navbar />
 
@@ -26,9 +27,10 @@ function App() {
         </main>
 
         <Footer />
-        
-        {/* NEW: The Vercel Analytics Component */}
         <Analytics />
+        
+        {/* <-- 2. ADD IT HERE AT THE BOTTOM --> */}
+        <InstallPrompt /> 
         
       </div>
     </Router>
