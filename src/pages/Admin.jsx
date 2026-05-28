@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase/config';
 import { 
-  collection, query, where, getDocs, updateDoc, doc, addDoc, getDoc, deleteDoc 
+  collection, query, where, getDocs, updateDoc, doc, addDoc, getDoc, deleteDoc, writeBatch, increment, setDoc 
 } from 'firebase/firestore';
 
 export default function Admin() {
@@ -20,6 +20,9 @@ export default function Admin() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [userActivity, setUserActivity] = useState([]);
   const [loadingActivity, setLoadingActivity] = useState(false);
+
+  // Leaderboard States
+  const [resetting, setResetting] = useState(false);
 
   const handleAdminLogin = async () => {
     try {
@@ -68,13 +71,11 @@ export default function Admin() {
 
       // 2. ZERO DUPLICATION LOGIC
       if (submission.targetProductId) {
-        // If the user used the "Suggest Edit" button, update the exact document directly.
         await updateDoc(doc(db, 'products', submission.targetProductId), {
           currentPrice: submission.suggestedPrice,
           lastUpdated: new Date()
         });
       } else {
-        // If it was a manual entry, do the old fallback name check
         const productsRef = collection(db, 'products');
         const q = query(productsRef, where('district', '==', submission.district));
         const productSnapshot = await getDocs(q);
@@ -94,46 +95,19 @@ export default function Admin() {
         }
       }
 
-      // 3. Award Trust Points
+      // 3. Award Trust Points (Updates both All-Time and Monthly)
       const userRef = doc(db, 'users', submission.submittedBy);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        const currentScore = userSnap.data().trustScore || 0;
-        await updateDoc(userRef, { trustScore: currentScore + 10 });
-      }
+      await updateDoc(userRef, { 
+        trustScore: increment(10),
+        monthlyScore: increment(10)
+      });
 
       setSubmissions(prev => prev.filter(s => s.id !== submission.id));
     } catch (error) {
       alert("Failed to approve.");
+      console.error(error);
     }
     setProcessingId(null);
-  };
-
-  // --- TEMPORARY BULK UPLOAD SCRIPT ---
-  const handleBulkUpload = async () => {
-    if (!window.confirm("Are you sure you want to inject this seed data?")) return;
-    
-    // Your translated array of authentic Kerala products
-    // seed Data enter here below as an array of objects with fields: name, category, unit, district, currentPrice
-    const seedData = [
-        // THE MISSING TEXT DATA (Gold, Silver, Veggies)
-      { name: "Swarnam (Gold 24k)", category: "Precious Metals", district: "Ernakulam", currentPrice: 116520, unit: "10g", lastUpdated: new Date() },
-      { name: "Velli (Silver)", category: "Precious Metals", district: "Ernakulam", currentPrice: 274500, unit: "kg", lastUpdated: new Date() },
-    ];
-    
-
-    try {
-      // Loop through and add each product directly to the 'products' collection
-      for (const product of seedData) {
-        await addDoc(collection(db, 'products'), product);
-      }
-      alert("Seed data successfully added!");
-      // Force reload the page to see the new products
-      window.location.reload(); 
-    } catch (error) {
-      console.error("Bulk upload failed:", error);
-      alert("Upload failed. Check console.");
-    }
   };
 
   const handleReject = async (submissionId) => {
@@ -145,6 +119,26 @@ export default function Admin() {
       alert("Failed to reject.");
     }
     setProcessingId(null);
+  };
+
+  // --- TEMPORARY BULK UPLOAD SCRIPT ---
+  const handleBulkUpload = async () => {
+    if (!window.confirm("Are you sure you want to inject this seed data?")) return;
+    
+    const seedData = [
+      { name: "Swarnam (Gold 24k)", category: "Precious Metals", district: "Ernakulam", currentPrice: 116520, unit: "10g", lastUpdated: new Date() },
+    ];
+    
+    try {
+      for (const product of seedData) {
+        await addDoc(collection(db, 'products'), product);
+      }
+      alert("Seed data successfully added!");
+      window.location.reload(); 
+    } catch (error) {
+      console.error("Bulk upload failed:", error);
+      alert("Upload failed. Check console.");
+    }
   };
 
   // --- TAB 2: PRODUCT MANAGEMENT ---
@@ -159,7 +153,7 @@ export default function Admin() {
     }
   };
 
-  // --- TAB 3: USER MANAGEMENT ---
+  // --- TAB 3: USER MANAGEMENT & LEADERBOARD CONTROLS ---
   const openUserActivity = async (user) => {
     setSelectedUser(user);
     setLoadingActivity(true);
@@ -176,29 +170,107 @@ export default function Admin() {
     }
   };
 
-  // NEW: Delete User Profile Logic
   const handleDeleteUser = async (userId, userEmail) => {
-    // 1. Safety Guard: Prevent deleting your own Master Admin account
     if (userId === currentUser.uid) {
       alert("Action Blocked: You cannot delete your own Master Admin account.");
       return;
     }
-
-    // 2. Confirmation Check
     const confirmDelete = window.confirm(`WARNING: Are you sure you want to delete the profile for ${userEmail}? They will lose all Trust Points and roles.`);
-    
     if (confirmDelete) {
       try {
-        // Delete the user document from Firestore
         await deleteDoc(doc(db, 'users', userId));
-        
-        // Remove the user from the local React state so the UI updates instantly
         setAllUsers(prev => prev.filter(u => u.uid !== userId));
         alert("User profile successfully deleted.");
       } catch (error) {
         console.error("Error deleting user:", error);
         alert("Failed to delete user profile.");
       }
+    }
+  };
+
+  // --- LEADERBOARD: Auto-Reset on New Month ---
+  useEffect(() => {
+    // Only run this check if the user is an admin and the user list has loaded
+    if (userData?.role !== 'admin' || allUsers.length === 0) return;
+
+    const checkAndAutoReset = async () => {
+      try {
+        // Gets the current year and month (e.g., "2026-05")
+        const currentMonth = new Date().toISOString().slice(0, 7); 
+        
+        // Check our database to see when we last reset the scores
+        const systemRef = doc(db, 'system', 'leaderboardMeta');
+        const systemSnap = await getDoc(systemRef);
+        
+        const lastResetMonth = systemSnap.exists() ? systemSnap.data().lastResetMonth : null;
+
+        // If it's a new month, trigger the automatic reset!
+        if (lastResetMonth !== currentMonth) {
+          console.log("New month detected! Auto-resetting scores...");
+          setResetting(true);
+          
+          const batch = writeBatch(db);
+          
+          // 1. Reset everyone's score to 0
+          allUsers.forEach((user) => {
+            const userRef = doc(db, 'users', user.id);
+            batch.update(userRef, { monthlyScore: 0 });
+          });
+          
+          // 2. Update the system tracker so it doesn't run again this month
+          batch.set(systemRef, { lastResetMonth: currentMonth }, { merge: true });
+          
+          await batch.commit();
+          
+          // 3. Update the UI instantly
+          setAllUsers(prev => prev.map(u => ({ ...u, monthlyScore: 0 })));
+          alert(`Happy New Month! 🎊 Scores have been automatically reset for ${currentMonth}.`);
+          setResetting(false);
+        }
+      } catch (error) {
+        console.error("Auto-reset check failed:", error);
+      }
+    };
+
+    checkAndAutoReset();
+  }, [userData, allUsers.length]); // Triggers when the admin loads the user directory
+
+  // --- LEADERBOARD: Manual Reset (Kept for emergencies) ---
+  const handleMonthlyReset = async () => {
+    if (!window.confirm("⚠️ Are you absolutely sure you want to manually reset EVERYONE'S monthly scores to 0?")) return;
+    
+    setResetting(true);
+    try {
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      const batch = writeBatch(db);
+      
+      allUsers.forEach((user) => {
+        const userRef = doc(db, 'users', user.id);
+        batch.update(userRef, { monthlyScore: 0 });
+      });
+
+      // Update the system tracker during manual resets too!
+      const systemRef = doc(db, 'system', 'leaderboardMeta');
+      batch.set(systemRef, { lastResetMonth: currentMonth }, { merge: true });
+
+      await batch.commit();
+      
+      setAllUsers(prev => prev.map(u => ({ ...u, monthlyScore: 0 })));
+      alert("Successfully reset all monthly scores to 0!");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to reset monthly scores.");
+    }
+    setResetting(false);
+  };
+
+  const handleBadgeChange = async (userId, newBadge) => {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, { badge: newBadge || null });
+      setAllUsers(prev => prev.map(u => u.id === userId ? { ...u, badge: newBadge } : u));
+    } catch (error) {
+      alert("Failed to update badge profile.");
     }
   };
 
@@ -286,94 +358,136 @@ export default function Admin() {
 
           {/* TAB 2: MANAGE PRODUCTS */}
           {activeTab === 'products' && (
-            <div className="overflow-x-auto">
-              {allProducts.length === 0 ? (
-                <div className="text-center py-16"><p className="text-gray-500 font-bold">No active products found.</p></div>
-              ) : (
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Product Name</th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Category</th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Location</th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Current Rate</th>
-                      <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">Admin Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {allProducts.map((product) => (
-                      <tr key={product.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{product.name}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.category}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.district}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-primary">₹{product.currentPrice} <span className="text-xs font-medium text-gray-500">/ {product.unit}</span></td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <button onClick={() => handleDeleteProduct(product.id)} className="text-red-600 hover:text-white border border-red-200 hover:bg-red-500 px-4 py-1.5 rounded-lg text-sm font-bold transition-colors">
-                            Delete
-                          </button>
-                        </td>
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h3 className="text-lg font-black text-gray-900">Active Market Data</h3>
+                  <p className="text-sm text-gray-500 mt-0.5">Manage live commodity rates on the platform.</p>
+                </div>
+                {/* RESTORED BUTTON: Placed elegantly inside Tab 2 */}
+                <button 
+                  onClick={handleBulkUpload} 
+                  className="px-5 py-2.5 text-sm font-bold rounded-xl transition-colors bg-purple-600 text-white hover:bg-purple-700 shadow-sm flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                  Inject Seed Data
+                </button>
+              </div>
+
+              <div className="overflow-x-auto border border-gray-100 rounded-2xl">
+                {allProducts.length === 0 ? (
+                  <div className="text-center py-16"><p className="text-gray-500 font-bold">No active products found.</p></div>
+                ) : (
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Product Name</th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Category</th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Location</th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Current Rate</th>
+                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">Admin Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 bg-white">
+                      {allProducts.map((product) => (
+                        <tr key={product.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{product.name}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.category}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.district}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-primary">₹{product.currentPrice} <span className="text-xs font-medium text-gray-500">/ {product.unit}</span></td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right">
+                            <button onClick={() => handleDeleteProduct(product.id)} className="text-red-600 hover:text-white border border-red-200 hover:bg-red-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
             </div>
           )}
 
-          <button 
-  onClick={handleBulkUpload} 
-  className="px-4 py-2 text-sm font-bold rounded-lg transition-colors bg-purple-600 text-white hover:bg-purple-700 ml-4 shadow"
->
-  Inject Seed Data
-</button>
-
-          {/* TAB 3: USER DIRECTORY (UPDATED) */}
+          {/* TAB 3: USER DIRECTORY (WITH LEADERBOARD CONTROLS) */}
           {activeTab === 'users' && (
-            <div className="overflow-x-auto">
-              {allUsers.length === 0 ? (
-                <div className="text-center py-16"><p className="text-gray-500 font-bold">No users found.</p></div>
-              ) : (
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">User Profile</th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Role</th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Trust Points</th>
-                      <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">Admin Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {allUsers.map((user) => (
-                      <tr key={user.uid} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-bold text-gray-900">{user.name}</div>
-                          <div className="text-xs text-gray-500">{user.email}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2.5 py-1 text-xs font-bold rounded-md ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'}`}>
-                            {user.role}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-gray-800">{user.trustScore} pts</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right flex items-center justify-end gap-2">
-                          <button onClick={() => openUserActivity(user)} className="text-primary hover:text-primary-dark border border-primary hover:bg-emerald-50 px-4 py-1.5 rounded-lg text-sm font-bold transition-colors">
-                            View Activity
-                          </button>
-                          {/* NEW: Delete Button (Disabled for yourself) */}
-                          <button 
-                            onClick={() => handleDeleteUser(user.uid, user.email)}
-                            disabled={user.uid === currentUser.uid}
-                            className="text-red-600 hover:text-white border border-red-200 hover:bg-red-500 px-4 py-1.5 rounded-lg text-sm font-bold transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-red-600"
-                            title={user.uid === currentUser.uid ? "Cannot delete yourself" : "Delete User"}
-                          >
-                            Delete User
-                          </button>
-                        </td>
+            <div className="p-6 space-y-6">
+              
+              <div className="bg-gray-50 p-5 rounded-2xl border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h3 className="text-lg font-black text-gray-900">End-of-Month Operations</h3>
+                  <p className="text-sm text-gray-500 mt-0.5">Flush global monthly scores to kick off next month's competition cycle.</p>
+                </div>
+                <button
+                  onClick={handleMonthlyReset}
+                  disabled={resetting}
+                  className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl transition-colors shadow-sm disabled:opacity-50 shrink-0 flex items-center gap-2"
+                >
+                  {resetting ? 'Resetting Data...' : '🔄 Reset Monthly Scores'}
+                </button>
+              </div>
+
+              <div className="overflow-x-auto border border-gray-100 rounded-2xl">
+                {allUsers.length === 0 ? (
+                  <div className="text-center py-16"><p className="text-gray-500 font-bold">No users found.</p></div>
+                ) : (
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">User Profile</th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Scores (M / All)</th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Assign Badge</th>
+                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">Admin Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 bg-white">
+                      {allUsers.map((user) => (
+                        <tr key={user.uid} className="hover:bg-gray-50">
+                          
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-2">
+                              <div className="text-sm font-bold text-gray-900">{user.name}</div>
+                              {user.role === 'admin' && <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-purple-100 text-purple-700">Admin</span>}
+                            </div>
+                            <div className="text-xs text-gray-500">{user.email}</div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600">
+                            <span className="text-primary font-black">{user.monthlyScore || 0}</span> M / {user.trustScore || 0} Total
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <select
+                              value={user.badge || ''}
+                              onChange={(e) => handleBadgeChange(user.id, e.target.value)}
+                              className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold focus:ring-2 outline-none bg-white text-gray-700 cursor-pointer"
+                            >
+                              <option value="">No Badge</option>
+                              <option value="Master">👑 Master</option>
+                              <option value="Gold">🥇 Gold</option>
+                              <option value="Silver">🥈 Silver</option>
+                            </select>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-nowrap text-right flex items-center justify-end gap-2">
+                            <button onClick={() => openUserActivity(user)} className="text-primary hover:text-primary-dark border border-primary hover:bg-emerald-50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                              View Activity
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteUser(user.uid, user.email)}
+                              disabled={user.uid === currentUser.uid}
+                              className="text-red-600 hover:text-white border border-red-200 hover:bg-red-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-red-600"
+                              title={user.uid === currentUser.uid ? "Cannot delete yourself" : "Delete User"}
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
             </div>
           )}
         </div>

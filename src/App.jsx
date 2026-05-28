@@ -8,6 +8,8 @@ import Dashboard from './pages/Dashboard';
 import Contribute from './pages/Contribute';
 import Admin from './pages/Admin';
 import MySubmissions from './pages/MySubmissions';
+import Leaderboard from './pages/Leaderboard';
+import HowItWorks from './pages/HowItWorks';
 
 function App() {
   return (
@@ -19,10 +21,12 @@ function App() {
         <main className="flex-grow container mx-auto p-4 md:p-6 w-full">
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/login" element={<Login />} />
             <Route path="/contribute" element={<Contribute />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/my-submissions" element={<MySubmissions />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
           </Routes>
         </main>
 

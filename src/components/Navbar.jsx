@@ -35,12 +35,18 @@ export default function Navbar() {
           {/* DESKTOP NAVIGATION */}
           <div className="hidden md:flex items-center gap-4">
             {/* ALWAYS VISIBLE LINKS */}
+            <Link to="/how-it-works" className={`text-sm font-medium transition-colors ${isActive('/how-it-works') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}>
+  How it Works
+</Link>
             <Link to="/" className={`text-sm font-medium transition-colors ${isActive('/') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}>
               Live Rates
             </Link>
             <Link to="/contribute" className={`text-sm font-medium transition-colors ${isActive('/contribute') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}>
               Add Price
             </Link>
+<Link to="/leaderboard" className={`text-sm font-medium transition-colors ${isActive('/leaderboard') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}>
+  Leaderboard
+</Link>
 
             {/* LOGGED IN ONLY LINKS */}
             {currentUser ? (
@@ -88,12 +94,22 @@ export default function Navbar() {
           <div className="px-4 pt-3 pb-6 space-y-2">
             
             {/* ALWAYS VISIBLE MOBILE LINKS */}
+            <Link to="/how-it-works" onClick={closeMenu} className={`block px-4 py-3 rounded-xl text-base font-bold transition-colors ${isActive('/how-it-works') ? 'bg-emerald-50 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}>
+  How it Works
+</Link>
             <Link to="/" onClick={closeMenu} className={`block px-4 py-3 rounded-xl text-base font-bold transition-colors ${isActive('/') ? 'bg-emerald-50 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}>
               Live Rates
             </Link>
             <Link to="/contribute" onClick={closeMenu} className={`block px-4 py-3 rounded-xl text-base font-bold transition-colors ${isActive('/contribute') ? 'bg-emerald-50 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}>
               Add Price
             </Link>
+<Link 
+  to="/leaderboard" 
+  onClick={closeMenu} 
+  className={`block px-4 py-3 rounded-xl text-base font-bold transition-colors ${isActive('/leaderboard') ? 'bg-emerald-50 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}
+>
+  Leaderboard
+</Link>
 
             {/* LOGGED IN ONLY MOBILE LINKS */}
             {currentUser ? (
