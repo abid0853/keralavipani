@@ -10,6 +10,7 @@ import Admin from './pages/Admin';
 import MySubmissions from './pages/MySubmissions';
 import Leaderboard from './pages/Leaderboard';
 import HowItWorks from './pages/HowItWorks';
+import ShoppingList from './pages/ShoppingList';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/admin" element={<Admin />} />
             <Route path="/my-submissions" element={<MySubmissions />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/shopping-list" element={<ShoppingList />} />
           </Routes>
         </main>
 

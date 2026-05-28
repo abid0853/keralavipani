@@ -47,6 +47,9 @@ export default function Navbar() {
 <Link to="/leaderboard" className={`text-sm font-medium transition-colors ${isActive('/leaderboard') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}>
   Leaderboard
 </Link>
+<Link to="/shopping-list" className={`text-sm font-bold transition-colors flex items-center gap-1.5 ${isActive('/shopping-list') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}>
+  🛒 My List
+</Link>
 
             {/* LOGGED IN ONLY LINKS */}
             {currentUser ? (
@@ -109,6 +112,9 @@ export default function Navbar() {
   className={`block px-4 py-3 rounded-xl text-base font-bold transition-colors ${isActive('/leaderboard') ? 'bg-emerald-50 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}
 >
   Leaderboard
+</Link>
+<Link to="/shopping-list" onClick={closeMenu} className={`block px-4 py-3 rounded-xl text-base font-bold transition-colors flex items-center gap-2 ${isActive('/shopping-list') ? 'bg-emerald-50 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}>
+  🛒 Smart Shopping List
 </Link>
 
             {/* LOGGED IN ONLY MOBILE LINKS */}
