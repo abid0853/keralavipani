@@ -81,7 +81,7 @@ const categories = ['All Types', 'Vegetables/Fruit', 'Meat', 'Fish', 'Fuel', 'Gr
   }, [products, searchQuery, selectedDistrict, selectedCategory]);
 
   const handleWhatsAppShare = (product) => {
-    const message = `📈 *Live Market Rate*\n${product.name} in ${product.district} is currently *₹${product.currentPrice} / ${product.unit}*.\n\nCheck more live daily rates on KeralaVipani: https://keralavipani.vercel.app/`;
+    const message = `📈 *Live Market Rate*\n${product.name} in ${product.district} is currently *₹${product.currentPrice} / ${product.unit}*.\n\nCheck more live daily rates on KeralaVipani: https://keralavipani.abidts.work`;
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };

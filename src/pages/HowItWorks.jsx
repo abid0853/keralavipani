@@ -1,6 +1,10 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 export default function HowItWorks() {
+  // Add state to track the language for the disclaimer
+  const [lang, setLang] = useState('ml');
+
   return (
     <div className="max-w-4xl mx-auto mt-6 md:mt-10 pb-16 px-4 animate-fade-in-up">
       
@@ -81,17 +85,39 @@ export default function HowItWorks() {
       {/* FRIENDLY MALAYALAM DISCLAIMER */}
       <div className="mt-8 bg-amber-50 border border-amber-200 p-6 rounded-3xl shadow-sm relative overflow-hidden">
         <div className="absolute top-0 left-0 w-2 h-full bg-amber-400"></div>
+        
+        {/* TRANSLATE TOGGLE BUTTON */}
+        <div className="flex justify-end mb-2 relative z-10">
+          <button
+            onClick={() => setLang(lang === 'ml' ? 'en' : 'ml')}
+            className="text-xs font-bold text-amber-700 bg-amber-200/50 hover:bg-amber-200 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 0H3m5 6.135a13.963 13.963 0 01-3.18-3.135" />
+            </svg>
+            {lang === 'ml' ? 'Translate to English' : 'മലയാളത്തിൽ കാണുക'}
+          </button>
+        </div>
+
         <h3 
           className="text-xl font-bold text-amber-900 mb-3 flex items-center gap-2"
-          style={{ fontFamily: "'Manjari', sans-serif" }}
+          style={lang === 'ml' ? { fontFamily: "'Manjari', sans-serif" } : undefined}
         >
-          ⚠️ ഒരു ചെറിയ അപേക്ഷ...
+          {lang === 'ml' ? '⚠️ ഒരു ചെറിയ അപേക്ഷ...' : '⚠️ A small request...'}
         </h3>
         <p 
           className="text-amber-800 text-base md:text-lg leading-relaxed"
-          style={{ fontFamily: "'Manjari', sans-serif" }}
+          style={lang === 'ml' ? { fontFamily: "'Manjari', sans-serif" } : undefined}
         >
-          അളിയാ... ഇതിലെ വിലവിവരങ്ങൾ നമ്മളൊക്കെ തന്നെ ചേർക്കുന്നതല്ലേ, അതുകൊണ്ട് ചിലപ്പോൾ ചെറിയ വ്യത്യാസങ്ങൾ ഒക്കെ ഉണ്ടാകാം. എങ്ങാനും വില മാറിയിട്ടുണ്ടെങ്കിൽ നമ്മളോട് കനിയണം! ദേഷ്യപ്പെടാതെ ആ <span className="font-bold bg-amber-200/50 px-1.5 py-0.5 rounded text-sm" style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif" }}>Suggest Price Change</span> ബട്ടൺ ഞെക്കി ശരിയായ വിലയൊന്ന് അപ്‌ഡേറ്റ് ചെയ്തു സഹായിക്കണേ... 😅
+          {lang === 'ml' ? (
+            <>
+              അളിയാ... ഇതിലെ വിലവിവരങ്ങൾ നമ്മളൊക്കെ തന്നെ ചേർക്കുന്നതല്ലേ, അതുകൊണ്ട് ചിലപ്പോൾ ചെറിയ വ്യത്യാസങ്ങൾ ഒക്കെ ഉണ്ടാകാം. എങ്ങാനും വില മാറിയിട്ടുണ്ടെങ്കിൽ നമ്മളോട് കനിയണം! ദേഷ്യപ്പെടാതെ ആ <span className="font-bold bg-amber-200/50 px-1.5 py-0.5 rounded text-sm" style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif" }}>Suggest Price Change</span> ബട്ടൺ ഞെക്കി ശരിയായ വിലയൊന്ന് അപ്‌ഡേറ്റ് ചെയ്തു സഹായിക്കണേ... 😅
+            </>
+          ) : (
+            <>
+              Bro... we are all contributing these price details together, so there might be slight variations sometimes. If a price has changed, please have mercy on us! Instead of getting upset, click that <span className="font-bold bg-amber-200/50 px-1.5 py-0.5 rounded text-sm">Suggest Price Change</span> button and help us update the correct rate... 😅
+            </>
+          )}
         </p>
       </div>
 

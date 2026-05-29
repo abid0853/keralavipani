@@ -88,7 +88,7 @@ export default function ShoppingList() {
     });
 
     message += `\n*Total Estimated:* ₹${totalEstimated}\n\n`;
-    message += `View live rates on: https://keralavipani.vercel.app/`;
+message += `View live rates on: https://keralavipani.abidts.work`;
 
     // Encode the message and open WhatsApp URL Scheme
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;

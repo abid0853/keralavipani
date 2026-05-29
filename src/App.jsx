@@ -11,6 +11,7 @@ import MySubmissions from './pages/MySubmissions';
 import Leaderboard from './pages/Leaderboard';
 import HowItWorks from './pages/HowItWorks';
 import ShoppingList from './pages/ShoppingList';
+import WelcomeModal from './components/WelcomeModal';
 
 function App() {
   return (
@@ -19,6 +20,9 @@ function App() {
         
         <Navbar />
 
+
+        <WelcomeModal /> {/* <-- 2. ADD THE WELCOME MODAL HERE */}
+        
         <main className="flex-grow container mx-auto p-4 md:p-6 w-full">
           <Routes>
             <Route path="/" element={<Dashboard />} />

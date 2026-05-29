@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://keralavipani.vercel.app/sitemap.xml
+Sitemap: https://keralavipani.abidts.work/sitemap.xml
