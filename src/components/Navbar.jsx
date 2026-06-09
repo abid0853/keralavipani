@@ -38,6 +38,9 @@ export default function Navbar() {
             <Link to="/how-it-works" className={`text-sm font-medium transition-colors ${isActive('/how-it-works') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}>
   How it Works
 </Link>
+            <Link to="/shopping-list" className={`text-sm font-bold transition-colors flex items-center gap-1.5 ${isActive('/shopping-list') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}>
+  🛒 My List
+</Link>
             <Link to="/" className={`text-sm font-medium transition-colors ${isActive('/') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}>
               Live Rates
             </Link>
@@ -47,9 +50,7 @@ export default function Navbar() {
 <Link to="/leaderboard" className={`text-sm font-medium transition-colors ${isActive('/leaderboard') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}>
   Leaderboard
 </Link>
-<Link to="/shopping-list" className={`text-sm font-bold transition-colors flex items-center gap-1.5 ${isActive('/shopping-list') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}>
-  🛒 My List
-</Link>
+
 
             {/* LOGGED IN ONLY LINKS */}
             {currentUser ? (
@@ -100,6 +101,9 @@ export default function Navbar() {
             <Link to="/how-it-works" onClick={closeMenu} className={`block px-4 py-3 rounded-xl text-base font-bold transition-colors ${isActive('/how-it-works') ? 'bg-emerald-50 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}>
   How it Works
 </Link>
+            <Link to="/shopping-list" onClick={closeMenu} className={`block px-4 py-3 rounded-xl text-base font-bold transition-colors flex items-center gap-2 ${isActive('/shopping-list') ? 'bg-emerald-50 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}>
+  🛒 Smart Shopping List
+</Link>
             <Link to="/" onClick={closeMenu} className={`block px-4 py-3 rounded-xl text-base font-bold transition-colors ${isActive('/') ? 'bg-emerald-50 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}>
               Live Rates
             </Link>
@@ -113,9 +117,7 @@ export default function Navbar() {
 >
   Leaderboard
 </Link>
-<Link to="/shopping-list" onClick={closeMenu} className={`block px-4 py-3 rounded-xl text-base font-bold transition-colors flex items-center gap-2 ${isActive('/shopping-list') ? 'bg-emerald-50 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}>
-  🛒 Smart Shopping List
-</Link>
+
 
             {/* LOGGED IN ONLY MOBILE LINKS */}
             {currentUser ? (
