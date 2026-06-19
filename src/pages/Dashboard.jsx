@@ -3,6 +3,7 @@ import { db } from '../firebase/config';
 import { collection, onSnapshot, query, orderBy, addDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Ad1 from '../components/Ad1';
 
 export default function Dashboard() {
   const [products, setProducts] = useState([]);
@@ -86,8 +87,8 @@ const categories = ['All Types', 'Vegetables/Fruit', 'Meat', 'Fish', 'Fuel', 'Gr
     window.open(whatsappUrl, '_blank');
   };
 
-  return (
-    <div className="max-w-7xl mx-auto mt-4 md:mt-8 pb-12">
+ return (
+    <div className="max-w-7xl mx-auto mt-4 md:mt-8 pb-12 px-4">
       
       {/* HEADER & MOBILE FILTER TOGGLE */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
@@ -104,59 +105,69 @@ const categories = ['All Types', 'Vegetables/Fruit', 'Meat', 'Fish', 'Fuel', 'Gr
         </button>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-8">
+      {/* THE FIX: Just ONE clean CSS Grid wrapper */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
         
-        {/* LEFT SIDEBAR (FILTERS) */}
-        <aside className={`w-full md:w-64 shrink-0 space-y-8 ${isMobileFilterOpen ? 'block' : 'hidden md:block'}`}>
-          {/* District Filter */}
-          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-              Select District
-            </h3>
-            <div className="space-y-1 max-h-[300px] overflow-y-auto pr-2 hide-scrollbar">
-              {districts.map(d => (
-                <button 
-                  key={d}
-                  onClick={() => setSelectedDistrict(d)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
-                    selectedDistrict === d 
-                      ? 'bg-primary text-white font-bold shadow-md' 
-                      : 'text-gray-600 hover:bg-emerald-50 font-medium'
-                  }`}
-                >
-                  {d}
-                </button>
-              ))}
+        {/* DESKTOP FILTERS SIDEBAR (Sticky on desktop, toggleable on mobile) */}
+        <aside className={`lg:col-span-1 lg:sticky lg:top-24 lg:max-h-[calc(100vh-120px)] overflow-y-auto pr-2 ${isMobileFilterOpen ? 'block mb-6' : 'hidden lg:block'}`}>
+          <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm space-y-6">
+            
+            {/* District Filter */}
+            <div>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-3">
+                Select District
+              </label>
+              <select
+                value={selectedDistrict}
+                onChange={(e) => {
+                  setSelectedDistrict(e.target.value);
+                  setIsMobileFilterOpen(false);
+                }}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl font-semibold text-gray-800 outline-none focus:ring-2 focus:ring-primary transition-all"
+              >
+                {districts.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Category Filter */}
+            <div>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-3">
+                Category
+              </label>
+              <div className="space-y-1">
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setSelectedCategory(cat);
+                      setIsMobileFilterOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-3 rounded-xl font-bold text-sm transition-all flex justify-between items-center ${
+                      selectedCategory === cat
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
+                  >
+                    {cat}
+                    {selectedCategory === cat && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Category Filter */}
-          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-              Product Type
-            </h3>
-            <div className="space-y-1">
-              {categories.map(c => (
-                <button 
-                  key={c}
-                  onClick={() => setSelectedCategory(c)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
-                    selectedCategory === c 
-                      ? 'bg-primary text-white font-bold shadow-md' 
-                      : 'text-gray-600 hover:bg-emerald-50 font-medium'
-                  }`}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
+          {/* DESKTOP AD (Sits under the sticky filters) */}
+          <div className="hidden lg:block mt-6">
+            <Ad1 />
           </div>
         </aside>
 
         {/* RIGHT MAIN CONTENT AREA */}
-        <main className="flex-1 min-w-0">
+        <main className="lg:col-span-3 min-w-0">
           
           {/* The Search Bar */}
           <div className="relative mb-6">
@@ -172,14 +183,19 @@ const categories = ['All Types', 'Vegetables/Fruit', 'Meat', 'Fish', 'Fuel', 'Gr
             />
           </div>
 
+          {/* MOBILE AD (Sits under search bar when filters are hidden) */}
+          <div className="block lg:hidden mb-6">
+            <Ad1 />
+          </div>
+
           {/* Result Context Banner */}
           <div className="mb-4 text-sm font-semibold text-gray-500">
             Showing results for: <span className="text-primary">{selectedCategory}</span> in <span className="text-primary">{selectedDistrict}</span>
           </div>
 
-          {/* Product Grid */}
+          {/* Product Grid Area */}
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {[1, 2, 3, 4, 5, 6].map(n => <div key={n} className="h-40 bg-gray-100 rounded-2xl animate-pulse"></div>)}
             </div>
           ) : filteredProducts.length === 0 ? (
@@ -197,9 +213,10 @@ const categories = ['All Types', 'Vegetables/Fruit', 'Meat', 'Fish', 'Fuel', 'Gr
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {filteredProducts.map((product) => (
                 <div key={product.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-shadow duration-300 flex flex-col justify-between group">
+                  {/* Item Header */}
                   <div>
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="text-lg font-bold text-gray-900 leading-tight">{product.name}</h3>
@@ -213,7 +230,8 @@ const categories = ['All Types', 'Vegetables/Fruit', 'Meat', 'Fish', 'Fuel', 'Gr
                     </p>
                   </div>
                   
-                 <div className="mt-5 pt-4 border-t border-gray-50 flex flex-col gap-3">
+                  {/* Item Body / Prices */}
+                  <div className="mt-5 pt-4 border-t border-gray-50 flex flex-col gap-3">
                     <div className="flex items-end justify-between">
                       <div>
                         <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Verified Rate</p>
@@ -223,7 +241,6 @@ const categories = ['All Types', 'Vegetables/Fruit', 'Meat', 'Fish', 'Fuel', 'Gr
                         </p>
                       </div>
                       
-                      {/* NEW: WhatsApp Share Button */}
                       <button 
                         onClick={() => handleWhatsAppShare(product)}
                         className="p-2.5 bg-green-50 hover:bg-green-100 text-green-600 rounded-xl border border-green-200 transition-colors"
@@ -236,22 +253,22 @@ const categories = ['All Types', 'Vegetables/Fruit', 'Meat', 'Fish', 'Fuel', 'Gr
                     </div>
                     
                     <div className="flex gap-2">
-  <button 
-    onClick={() => handleAddToList(product)}
-    className="flex-1 py-2.5 bg-primary hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-sm transition-colors flex justify-center items-center gap-1.5"
-  >
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-    Add to List
-  </button>
-  
-  <button 
-    onClick={() => navigate('/contribute', { state: { editProduct: product } })}
-    className="flex-1 py-2.5 bg-gray-50 hover:bg-emerald-50 text-gray-600 hover:text-emerald-700 font-bold text-xs rounded-xl border border-gray-200 hover:border-emerald-200 transition-colors flex justify-center items-center gap-1.5"
-  >
-    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-    Suggest Price
-  </button>
-</div>
+                      <button 
+                        onClick={() => handleAddToList(product)}
+                        className="flex-1 py-2.5 bg-primary hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-sm transition-colors flex justify-center items-center gap-1.5"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        Add to List
+                      </button>
+                      
+                      <button 
+                        onClick={() => navigate('/contribute', { state: { editProduct: product } })}
+                        className="flex-1 py-2.5 bg-gray-50 hover:bg-emerald-50 text-gray-600 hover:text-emerald-700 font-bold text-xs rounded-xl border border-gray-200 hover:border-emerald-200 transition-colors flex justify-center items-center gap-1.5"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        Suggest Price
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
