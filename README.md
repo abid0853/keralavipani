@@ -50,7 +50,7 @@ If you are reviewing this code and want to run it locally:
 
 1. **Clone the repository**
    ```sh
-   git clone [https://github.com/your-username/KeralaVipani.git](https://github.com/your-username/KeralaVipani.git)
+   git clone [https://github.com/abid0853/KeralaVipani.git](https://github.com/abid0853/KeralaVipani.git)
 Navigate to the project directory
 
 Bash
