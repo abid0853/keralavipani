@@ -29,9 +29,18 @@ Built with modern web technologies, it features an interactive smart shopping li
 
 ---
 
-## 🔒 Project Status
+## 🌍 Open Source & Contributing
 
-**This is a personal portfolio project.** The repository and source code are provided here to demonstrate the architecture, UI/UX design, and technical implementation of the platform. It is currently a closed project and is **not open for public edits or open-source contributions**.
+**KeralaVipani is an open-source project!** We welcome developers, designers, and market enthusiasts to contribute to the platform. Whether it's adding new features, squashing bugs, or improving the UI, your help is greatly appreciated.
+
+**How to contribute:**
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+Please ensure your code follows the existing style and includes comments where necessary.
 
 ---
 
