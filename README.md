@@ -1,16 +1,71 @@
-# React + Vite
+# 🌴 KeralaVipani
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**KeralaVipani** is a real-time market rate dashboard for Kerala. It is designed to track and verify daily commodity prices—including vegetables, fruits, fish, meat, and fuel—across all 14 districts. 
 
-Currently, two official plugins are available:
+Built with modern web technologies, it features an interactive smart shopping list, a gamified contributor leaderboard, and a secure admin verification system to ensure data accuracy.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+![KeralaVipani](public/logo.png) ---
 
-## React Compiler
+## ✨ Key Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* **📈 Live Market Rates:** Real-time price tracking for multiple commodities across all 14 districts of Kerala.
+* **🛒 Smart Shopping List:** A dynamic grocery list that calculates an estimated budget based on state averages. Includes one-click PDF export and direct WhatsApp sharing.
+* **🤝 Community Submissions:** Authenticated users can report new prices or suggest edits to existing rates to keep the market data fresh.
+* **🏆 Gamified Leaderboard:** Contributors earn "Trust Points" for verified submissions, climbing the All-Time and Monthly Champion leaderboards.
+* **🛡️ Admin Control Panel:** A secure, role-based dashboard to approve/reject community submissions, manage active market data, and oversee the user directory.
+* **📱 Progressive Web App (PWA) Ready:** Fully responsive, mobile-first design that functions seamlessly on any device.
+* **🔍 SEO Optimized:** Dynamic meta tags and JSON-LD schema markup implemented for maximum search engine visibility.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Tech Stack
+
+**Frontend Framework:** React.js (via Vite)  
+**Styling:** Tailwind CSS  
+**Backend & Database:** Firebase (Firestore, Authentication)  
+**Routing:** React Router DOM  
+**SEO Management:** React Helmet Async  
+**Hosting & Deployment:** Vercel  
+
+---
+
+## 🔒 Project Status
+
+**This is a personal portfolio project.** The repository and source code are provided here to demonstrate the architecture, UI/UX design, and technical implementation of the platform. It is currently a closed project and is **not open for public edits or open-source contributions**.
+
+---
+
+## 🚀 Local Setup (For Review Purposes)
+
+If you are reviewing this code and want to run it locally:
+
+1. **Clone the repository**
+   ```sh
+   git clone [https://github.com/your-username/KeralaVipani.git](https://github.com/your-username/KeralaVipani.git)
+Navigate to the project directory
+
+Bash
+cd KeralaVipani
+Install dependencies
+
+Bash
+npm install
+Set up Environment Variables
+Create a .env file in the root directory with your Firebase configuration:
+
+Code snippet
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+Start the development server  
+
+Bash
+npm run dev
+👨‍💻 Developed By
+  
+Built and maintained as a personal project by Abid T.S.  
+
+Live Demo: keralavipani.abidts.work
