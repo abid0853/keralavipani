@@ -1,8 +1,9 @@
+import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import InstallPrompt from './components/InstallPrompt'; // <-- 1. IMPORT IT HERE
+import InstallPrompt from './components/InstallPrompt'; 
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Contribute from './pages/Contribute';
@@ -15,35 +16,35 @@ import WelcomeModal from './components/WelcomeModal';
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-50 flex flex-col font-sans relative">
-        
-        <Navbar />
+    <HelmetProvider>
+      <Router>
+        <div className="min-h-screen bg-gray-50 flex flex-col font-sans relative">
+          
+          <Navbar />
 
+          <WelcomeModal /> 
+          
+          <main className="flex-grow container mx-auto p-4 md:p-6 w-full">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/contribute" element={<Contribute />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/my-submissions" element={<MySubmissions />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/shopping-list" element={<ShoppingList />} />
+            </Routes>
+          </main>
 
-        <WelcomeModal /> {/* <-- 2. ADD THE WELCOME MODAL HERE */}
-        
-        <main className="flex-grow container mx-auto p-4 md:p-6 w-full">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/how-it-works" element={<HowItWorks />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/contribute" element={<Contribute />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/my-submissions" element={<MySubmissions />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/shopping-list" element={<ShoppingList />} />
-          </Routes>
-        </main>
-
-        <Footer />
-        <Analytics />
-        
-        {/* <-- 2. ADD IT HERE AT THE BOTTOM --> */}
-        <InstallPrompt /> 
-        
-      </div>
-    </Router>
+          <Footer />
+          <Analytics />
+          
+          <InstallPrompt /> 
+          
+        </div>
+      </Router>
+    </HelmetProvider>
   );
 }
 

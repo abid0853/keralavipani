@@ -4,6 +4,7 @@ import { collection, onSnapshot, query, orderBy, addDoc } from 'firebase/firesto
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Ad1 from '../components/Ad1';
+import { Helmet } from 'react-helmet-async';
 
 export default function Dashboard() {
   const [products, setProducts] = useState([]);
@@ -89,7 +90,40 @@ const categories = ['All Types', 'Vegetables/Fruit', 'Meat', 'Fish', 'Fuel', 'Gr
 
  return (
     <div className="max-w-7xl mx-auto mt-4 md:mt-8 pb-12 px-4">
-      
+
+   {/* --- INJECT SEO TAGS HERE --- */}
+      <Helmet>
+        {/* 1. Dynamic Title and Meta Description */}
+        <title>
+          {selectedDistrict === 'All Kerala' 
+            ? 'Live Market Rates Today in Kerala | KeralaVipani' 
+            : `Live Market Rates Today in ${selectedDistrict} | KeralaVipani`}
+        </title>
+        
+        <meta 
+          name="description" 
+          content={`Check today's live vegetable, fish, gold, fuel prices, and market rates in ${selectedDistrict}, Kerala.`} 
+        />
+
+        {/* 2. Structured Data (JSON-LD) */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Dataset",
+            "name": `Live Market Rates in ${selectedDistrict}`,
+            "description": "Daily real-time retail market prices for vegetables, fruits, fish, fuel, and commodities across Kerala.",
+            "license": "https://creativecommons.org",
+            "keywords": ["Kerala market rates", "vegetable price today", "fuel rate Kerala", `${selectedDistrict} market prices`],
+            "creator": {
+              "@type": "Organization",
+              "name": "KeralaVipani"
+            }
+          })}
+        </script>
+      </Helmet>
+      {/* --- END SEO TAGS --- */}   
+
+
       {/* HEADER & MOBILE FILTER TOGGLE */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
         <div>
